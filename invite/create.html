@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Create invite card</title>
+    <script>
+        function getEncode64(str){   
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+          function toSolidBytes(match, p1) {
+              return String.fromCharCode('0x' + p1);
+         }));
+            
+        }
+        var url="https://APGPerson.github.io/invite/index.html"
+        function create(){
+            var final = "https://APGPerson.github.io/invite/index.html"
+            var dts= "";
+            var name = document.getElementById("name").value;
+            var date = document.getElementById("date").value;
+            var locate = document.getElementById("locate").value;
+            var auth = document.getElementById("auth").value;
+            var sponsor = document.getElementById("sponsor").value;
+            var infomation = document.getElementById("infomation").value;
+            if(name != ""){
+                dts=dts+"name="+getEncode64(name)+"&";
+            }
+            if(date != ""){
+                dts=dts+"date="+getEncode64(date)+"&";
+            }
+            if(locate != ""){
+                dts=dts+"locate="+getEncode64(locate)+"&";
+            }
+            if(auth != ""){
+                dts=dts+"auth="+getEncode64(auth)+"&";
+            }
+            if(sponsor != ""){
+                dts=dts+"sponsor="+getEncode64(sponsor)+"&";
+            }
+            if(infomation != ""){
+                dts=dts+"infomation="+getEncode64(infomation)+"&";
+            }
+            if(dts===""){
+                document.getElementById("output").value = final;
+                url = final;
+            }else{
+                document.getElementById("output").value = final+"?"+dts.substring(0,dts.length-1);
+                url = final+"?"+dts.substring(0,dts.length-1);
+            }
+        }
+        function copy(){
+            var aux = document.createElement("input");
+            document.body.appendChild(aux);
+            aux.setAttribute("value",url);
+            aux.select();
+            document.execCommand("copy");
+            document.body.removeChild(aux);
+            alert("Copy success");
+        }
+    </script>
+</head>
+<body>
+    <h3>Name:</h3>
+    <input id="name" type="text"></input>
+    <h3>Date:</h3>
+    <input id="date" type="text"></input>
+    <h3>Locate:</h3>
+    <input id="locate" type="text"></input>
+    <h3>Auth:</h3>
+    <input id="auth" type="text"></input>
+    <h3>Sponsor:</h3>
+    <input id="sponsor" type="text"></input>
+    <h3>Infomation:</h3>
+    <input id="infomation" type="text"></input>
+    <h3>Output:</h3>
+    <button onclick="create();">Create</button>
+    <input id="output" type="text"></input>
+    <button onclick="copy();">Copy</button>
+</body>
+</html>
