@@ -1,0 +1,20 @@
+{
+    "statues" : [
+        {
+            "name":"标准KIT",
+            "price":"1RMB/盒",
+            "image":"./Data/Images/KIT.png",
+            "alt":"标准KIT内容",
+            "url":"https://docs.qq.com/form/page/DZWRwd2d5YVJ6RE1n",
+            "statue":"true"
+        },
+        {
+            "name":"补充KIT",
+            "price":"1RMB/盒",
+            "image":"./Data/Images/KIT.png",
+            "alt":"补充KIT内容",
+            "url":"https://docs.qq.com/form/page/DZWRwd2d5YVJ6RE1n",
+            "statue":"false"
+        }
+    ]
+}
