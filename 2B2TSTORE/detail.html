@@ -84,7 +84,7 @@
             {
                 ServiceJSONHandle=new ActiveXObject("Microsoft.XMLHTTP");
             }
-            ServiceJSONHandle.open("GET","./Data/statue.json",true);
+            ServiceJSONHandle.open("GET","./Data/statue.json?t="+ Math.random(),true);
             ServiceJSONHandle.onreadystatechange = function(){
                 if (ServiceJSONHandle.readyState==4 && ServiceJSONHandle.status==200)
                 {
