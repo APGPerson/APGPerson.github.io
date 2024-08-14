@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>2B2T物资小店</title>
+    <style>
+        body{
+            background-color: black;
+        }
+        div{
+            display: block;
+            margin-top: 25vh;
+        }
+        .title{
+            color: white;
+            text-align: center;
+        }
+        .animated-button-2{
+            margin-top: 5%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 10px;
+  position: relative;
+  padding:  20px 40px;
+  font-size: 1.4rem;
+  background-color: #00b3b4;
+  background-size: 46px 26px;
+  border: 1px solid #555;  
+  color: white;
+  transition: all ease 0.3s;
+}
+
+.animated-button-2::after{
+  position: absolute;
+  top: 50%;
+  right: 0.6em;
+  transform: translateY(-50%);
+  content: "»";
+  font-size: 1.2em;
+  transition: all ease 0.3s;
+  opacity: 0;
+}
+
+.animated-button-2:hover{
+  padding: 20px 60px 20px 20px;
+}
+
+.animated-button-2:hover::after{
+  right: 1.2em;
+  opacity: 1;
+}
+    </style>
+    <script>
+        function Begin(){
+            location.href = "./buy.html";
+        }
+    </script>
+</head>
+<body>
+    <div>
+    <h1 class="title">2B2T.XIN物资小店</h1>
+    <h3 class="title">实惠 方便 便宜</p1>
+    </div>
+    <button class="animated-button-2" onclick="Begin()">开始选购</button>
+</body>
+</html>

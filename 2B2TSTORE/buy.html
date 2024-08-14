@@ -1,0 +1,199 @@
+<head>
+    <title>2B2T物资小店</title>
+    <meta charset="UTF-8" />
+    <style>
+        @media screen and (max-width:480px) {
+            .item2{
+            margin-top: 5vh;
+            cursor:pointer;
+            margin-bottom: 5vh;
+            width: 80vw;
+        }
+        .imgc{
+            object-fit: contain;
+            width: 80vw;
+        }
+        }
+        @media screen and (min-width:480px) {
+            .item2{
+            margin-top: 5vh;
+            cursor: pointer;
+            margin-bottom: 5vh;
+            width: 30vw;
+            }
+            .imgc{
+            object-fit: contain;
+            width: 30vw;
+            }
+            
+        }
+        .bod{
+            display: flex;
+        }
+        .stat{
+            display: inline-block;
+            margin: 20px;
+        }
+        .item1{
+            color:white;
+            margin: 20px;
+            display: inline-block;
+        }
+        @keyframes opacityChange {
+    50% {
+        opacity:.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes rotate {
+	100% {
+		transform: rotate(1turn);
+	}
+}
+div.item {
+    background-color: #000;
+    padding: 20px;
+    div{ 
+        --borderWidth: 12px;
+        --bRadius: 10px;
+        
+        position: relative;
+        z-index: 0;
+        overflow: hidden;
+        padding: 2rem;
+        z-index: 0;
+        border-radius: --bRadius;
+        &::after, &::before {
+            box-sizing: border-box;
+        }
+        &::before {
+            content: '';
+            position: absolute;
+            z-index: -2;
+            left: -50%;
+            top: -50%;
+            width: 200%;
+            height: 200%;
+            background-color: #1a232a;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(transparent, rgba(168, 239, 255, 1), transparent 30%);
+            animation: rotate 4s linear infinite;
+        }
+	
+        &::after {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            left: calc(var(--borderWidth) / 2);
+            top: calc(var(--borderWidth) / 2);
+            width: calc(100% - var(--borderWidth));
+            height: calc(100% - var(--borderWidth));
+            background: #000;
+            border-radius: 5px;
+            /* 这句效果打开有助于理解动画 */
+            /*animation: opacityChange 5s infinite linear;*/
+        }
+        
+    }
+}
+
+div.item:nth-child(9) div::after {
+    animation: opacityChange 5s infinite linear;
+}
+    </style>
+    <script>
+        function Click(name){
+            location.href="./detail.html?name="+name
+        }
+        function Render(JSONdata){
+            var left = true;
+            for(var i=0;i<JSONdata["statues"].length;i++){
+                var DivObj = document.createElement("div");
+                var allow=true
+                DivObj.setAttribute("class","item2")
+                if(JSONdata["statues"][i]["statue"] === "true"){
+                    //DivObj.setAttribute("onclick",'location.href="./detail.html?name='+JSONdata["statues"][i]["name"])
+                    DivObj.setAttribute("onclick",'Click("'+JSONdata["statues"][i]["name"]+'")')
+                    //location.href="./detail.html?name="+JSONdata["statues"][i]["name"]
+                    
+                }else{
+                    allow=false
+                }
+                if(left===true && allow===true){
+                    DivObj.setAttribute("style","margin-left:7vw;margin-right:3vw;")
+                    left=false
+                }else if(left===false && allow===true){
+                    DivObj.setAttribute("style","margin-left:3vw;margin-right:7vw;")
+                    left=true
+                }else if(left===true && allow===false){
+                    DivObj.setAttribute("style","margin-left:7vw;margin-right:3vw;cursor:not-allowed;")
+                    left=true
+                }else if(left===false && allow===false){
+                    DivObj.setAttribute("style","margin-left:3vw;margin-right:7vw;cursor:not-allowed;")
+                    left=true
+                }
+                var ImageObj = document.createElement("img")
+                ImageObj.setAttribute("class","imgc")
+                ImageObj.setAttribute("src",JSONdata["statues"][i]["image"])
+                ImageObj.setAttribute("alt",JSONdata["statues"][i]["alt"])
+                var PriceObj = document.createElement("h3")
+                var PriceTextNode = document.createTextNode(JSONdata["statues"][i]["price"])
+                PriceObj.setAttribute("class","item1")
+                PriceObj.appendChild(PriceTextNode)
+                var ItemObj = document.createElement("h3")
+                var ItemTextNode = document.createTextNode(JSONdata["statues"][i]["name"])
+                ItemObj.setAttribute("class","item1")
+                ItemObj.appendChild(ItemTextNode)
+                var StatueObj = document.createElement("h3")
+                var StatueTextNode
+                if(JSONdata["statues"][i]["statue"] === "true"){
+                    StatueTextNode = document.createTextNode("有货，点击以购买")
+                    StatueObj.setAttribute("class","stat")
+                    StatueObj.setAttribute("style","color:green;")
+                }else{
+                    StatueTextNode = document.createTextNode("无货")
+                    StatueObj.setAttribute("class","stat")
+                    StatueObj.setAttribute("style","color:red;")
+                }
+                StatueObj.appendChild(StatueTextNode)
+                DivObj.appendChild(ImageObj)
+                DivObj.appendChild(ItemObj)
+                DivObj.appendChild(PriceObj)
+                DivObj.appendChild(StatueObj)
+                var DivObj2 = document.createElement("div");
+                DivObj2.setAttribute("class","item")
+                DivObj2.appendChild(DivObj)
+                var BodyObj = document.querySelector(".bod")
+                BodyObj.appendChild(DivObj2)
+
+            }
+        }
+        window.onload = function(){
+            var ServiceJSONHandle;
+            if (window.XMLHttpRequest)
+            {
+                ServiceJSONHandle=new XMLHttpRequest();
+            }
+            else
+            {
+                ServiceJSONHandle=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ServiceJSONHandle.open("GET","./Data/statue.json",true);
+            ServiceJSONHandle.onreadystatechange = function(){
+                if (ServiceJSONHandle.readyState==4 && ServiceJSONHandle.status==200)
+                {
+                    var JSONDATA=JSON.parse(ServiceJSONHandle.responseText);
+                    Render(JSONDATA);
+                }
+            }
+            ServiceJSONHandle.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            ServiceJSONHandle.send()
+        }
+    </script>
+</head>
+<body class="bod" style="background-color: black;">
+
+</body>
