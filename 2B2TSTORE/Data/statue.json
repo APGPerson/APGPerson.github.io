@@ -35,7 +35,7 @@
             "price":"1RMB/盒",
             "image":"./Data/Images/zw.png",
             "alt":"杂物KIT内容",
-            "statue":"false",
+            "statue":"true",
             "priceread":1,
             "url":["",""],
             "items":[]

@@ -93,6 +93,8 @@
                 }
             }
             ServiceJSONHandle.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            ServiceJSONHandle.setRequestHeader("Cache-Control", "no-cache");
+            ServiceJSONHandle.setRequestHeader("Pragma", "no-cache");
             ServiceJSONHandle.send()
         }
         function ShowJoin(){
