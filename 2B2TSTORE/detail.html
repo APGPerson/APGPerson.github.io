@@ -2,9 +2,208 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>title</title>
+    <title>Detail</title>
+    <script src="./Lib/sweetalert2.js"></script>
+    <style>
+        .item{
+            margin: 20px;
+            color: white;
+        }
+        .animated-button-2{
+            display: block;
+            margin-bottom: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 10px;
+  position: relative;
+  padding:  20px 40px;
+  font-size: 1.4rem;
+  background-color: #00b3b4;
+  background-size: 46px 26px;
+  border: 1px solid #555;  
+  color: white;
+  transition: all ease 0.3s;
+}
+
+.animated-button-2::after{
+  position: absolute;
+  top: 50%;
+  right: 0.6em;
+  transform: translateY(-50%);
+  content: "»";
+  font-size: 1.2em;
+  transition: all ease 0.3s;
+  opacity: 0;
+}
+
+.animated-button-2:hover{
+  padding: 20px 60px 20px 20px;
+}
+
+.animated-button-2:hover::after{
+  right: 1.2em;
+  opacity: 1;
+}
+    </style>
+    <script>
+        var PricePer = -1
+        var url
+        function GetPrice(num){
+            return num*PricePer
+        }
+        function Render(Data,id){
+            var ChooseData = Data["statues"][parseInt(id)]
+            PricePer = ChooseData["priceread"]
+            url=ChooseData["url"]
+            var IMG = document.querySelector(".image")
+            IMG.setAttribute("src",ChooseData["image"])
+            IMG.setAttribute("alt",ChooseData["alt"])
+            var NAME = document.querySelector(".name")
+            var NAMETEXTNODE = document.createTextNode(ChooseData["name"])
+            NAME.appendChild(NAMETEXTNODE)
+            var PRICE = document.querySelector(".price")
+            var PRICETEXTNODE = document.createTextNode(ChooseData["price"])
+            PRICE.appendChild(PRICETEXTNODE)
+            var ITEMS = document.querySelector(".allitems")
+            for(var i=0;i<ChooseData["items"].length;i++){
+                var itemobj = document.createElement("h5")
+                var ITEMSTEXTNODE = document.createTextNode(ChooseData["items"][i])
+                itemobj.appendChild(ITEMSTEXTNODE)
+                itemobj.setAttribute("class","item")
+                ITEMS.appendChild(itemobj)
+            }
+        }
+        window.onload = function(){
+            const id = new URLSearchParams(window.location.search).get("id")
+            var ServiceJSONHandle;
+            if (window.XMLHttpRequest)
+            {
+                ServiceJSONHandle=new XMLHttpRequest();
+            }
+            else
+            {
+                ServiceJSONHandle=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ServiceJSONHandle.open("GET","./Data/statue.json",true);
+            ServiceJSONHandle.onreadystatechange = function(){
+                if (ServiceJSONHandle.readyState==4 && ServiceJSONHandle.status==200)
+                {
+                    var JSONDATA=JSON.parse(ServiceJSONHandle.responseText);
+                    Render(JSONDATA,id);
+                }
+            }
+            ServiceJSONHandle.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            ServiceJSONHandle.send()
+        }
+        function ShowJoin(){
+            swal.fire({
+                title: '加入NAU组织',
+                icon:"info",
+                text:"加入NAU组织 QQ374152365"
+            })
+        }
+        function buy(){
+            var input = Number(prompt("[步骤1/5]请输入您要购买的数量",1))
+            if(input==NaN || input<1){
+                swal.fire({
+                    title: "输入不合法",
+                    icon: "error",
+                    text:"请输入一个大于等于1的整数"
+                })
+                return 0
+            }
+            swal.fire({
+                title:"[步骤2/5]购买确认",
+                icon:"info",
+                text: "您将要购买"+String(input)+"件KIT,请问是否确认",
+                showCancelButton: "true",
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                reverseButtons: true
+            }).then((isConfirm)=>{
+                console.log(isConfirm)
+                try{
+                    if(isConfirm.value){
+                        swal.fire({
+                title:"[步骤3/5]请支付",
+                imageUrl: "./Data/Code/pay.jpg",
+                text:"请支付:"+String(GetPrice(input))+"RMB",
+                showCancelButton: "true",
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                reverseButtons: true
+            }).then((isConf) =>{
+                try{
+                    if(isConf.isConfirmed){
+                        swal.fire({
+                            title:"[步骤4/5]请获取转账单号",
+                            icon:"info",
+                            text:"请点击微信支付-刚才的交易信息-转账单号并复制"
+                        }).then(() =>{
+                            swal.fire({
+                                title:"[步骤5/5]请提交购买信息",
+                                icon:"info",
+                                text:"请按规定提交信息至"+url[0],
+                                imageUrl:url[1]
+                            }).then(()=>{
+                                swal.fire({
+                                    title:"感谢您完成了购买",
+                                    icon:"success"
+                                }).then(()=>{
+                                    return 0
+                                })
+                            })
+                        })
+                        
+                        
+                }else{
+                    swal.fire({
+                            title:"您取消了购买",
+                            icon:"info"
+                        })
+                }
+                }catch(e){
+                    swal.fire({
+                        title:"ERROR",
+                        icon:"error",
+                        text: e
+                    })
+                }
+            })
+                    }else{
+                        swal.fire({
+                            title:"您取消了购买",
+                            icon:"info"
+                        })
+                    }
+                }catch(e){
+                    swal.fire({
+                        title:"ERROR",
+                        icon:"error",
+                        text: e
+                    })
+                }
+            }
+        )
+        }
+    </script>
 </head>
-<body>
-    
+<body style="display: flex;flex-direction: column;text-align: center;flex-wrap: wrap;background-color: black;overflow: auto;min-height: 100vh;">
+    <img class="image" style="object-fit: contain;margin: 20px;"/>
+    <div class="infos" style="text-align: center;">
+    <h1 class="name" style="display: inline-block;margin:20px;color:white"></h1>
+    <h3 class="price" style="display: inline-block;margin: 20px;color:white"></h3>
+</div>
+    <div class="allitems" style="display: flex;flex-wrap: wrap;"></div>
+    <div style="display: flex;flex-direction: row;">
+    <button onclick="window.history.back()" class="animated-button-2">返回</button>
+    <button onclick="buy()" class="animated-button-2">购买</button>
+    </div>
+    <footer style="margin-top: auto;">
+        <div style="background-color:rgb(6, 48, 50);">
+            <a onclick="ShowJoin()" style="color: rgb(0, 255, 255);display: inline-block;text-align: center;cursor: pointer;margin-left: 30vw;margin-right: 5vw;">加入我们</a>
+            <p style="display: inline-block;margin-left: 5vw;margin-right: 30vw;color: white;">APGPerson版权所有，基于Github Pages构建</p>
+        </div>
+    </footer>
 </body>
 </html>

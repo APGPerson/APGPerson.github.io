@@ -5,16 +5,50 @@
             "price":"1RMB/盒",
             "image":"./Data/Images/KIT.png",
             "alt":"标准KIT内容",
-            "url":"https://docs.qq.com/form/page/DZWRwd2d5YVJ6RE1n",
-            "statue":"true"
+            "statue":"true",
+            "priceread":1,
+            "url":["https://docs.qq.com/form/page/DZWRwd2d5YVJ6RE1n","./Data/Code/KIT.jpg"],
+            "items":["1*下界合金头盔","1*下界合金盔甲","1*下界合金裤子","1*下界合金鞋子","4*不死图腾","1x下界合金剑","1*下界合金镐","1*鞘翅","194*黑曜石","1*鞘翅","128*附魔金苹果","1*打火石","194*附魔之瓶","64*末影箱","64*紫菘果","256*末影水晶"]
         },
         {
-            "name":"补充KIT",
+            "name":"PVPKIT",
             "price":"1RMB/盒",
             "image":"./Data/Images/KIT.png",
-            "alt":"补充KIT内容",
-            "url":"https://docs.qq.com/form/page/DZWRwd2d5YVJ6RE1n",
-            "statue":"false"
+            "alt":"PVPKIT内容",
+            "statue":"false",
+            "priceread":1,
+            "url":["",""],
+            "items":[]
+        },
+        {
+            "name":"建筑KIT",
+            "price":"2RMB/盒",
+            "image":"./Data/Images/jz.png",
+            "alt":"建筑KIT内容",
+            "statue":"false",
+            "priceread":1,
+            "url":["",""],
+            "items":[]
+        },
+        {
+            "name":"杂物KIT",
+            "price":"1RMB/盒",
+            "image":"./Data/Images/zw.png",
+            "alt":"杂物KIT内容",
+            "statue":"true",
+            "priceread":1,
+            "url":["",""],
+            "items":[]
+        },
+        {
+            "name":"鸡刷KIT",
+            "price":"4RMB/盒",
+            "image":"./Data/Images/copy.png",
+            "alt":"鸡刷KIT内容",
+            "statue":"false",
+            "priceread":1,
+            "url":["",""],
+            "items":[]
         }
     ]
 }
