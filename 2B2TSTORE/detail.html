@@ -116,7 +116,7 @@
             }
             swal.fire({
                 title:"[步骤2/5]购买确认",
-                icon:"info",
+                icon:"question",
                 text: "您将要购买"+String(input)+"件KIT,请问是否确认",
                 showCancelButton: "true",
                 confirmButtonText: '确定',
@@ -188,6 +188,34 @@
             }
         )
         }
+        function help(){
+            swal.fire({
+                icon:"question",
+                title:"获取帮助",
+                text:"请问您遇到了什么困难",
+                showCancelButton:"true",
+                showDenyButton:"true",
+                confirmButtonText:"联系客服",
+                cancelButtonText:"取消",
+                denyButtonText:"重新显示收集表地址",
+                reverseButtons:"true"
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    swal.fire({
+                                title:"请加客服QQ群",
+                                icon:"info",
+                                text:"客服QQ群状态:FALSE",
+                            })
+                }else if(result.isDenied){
+                    swal.fire({
+                                title:"请提交购买信息",
+                                icon:"info",
+                                text:"请按规定提交信息至"+url[0],
+                                imageUrl:url[1]
+                            })
+                }
+            })
+        }
     </script>
 </head>
 <body style="display: flex;flex-direction: column;text-align: center;flex-wrap: wrap;background-color: black;overflow: auto;min-height: 100vh;">
@@ -200,6 +228,7 @@
     <div style="display: flex;flex-direction: row;">
     <button onclick="window.history.back()" class="animated-button-2">返回</button>
     <button onclick="buy()" class="animated-button-2">购买</button>
+    <button onclick="help()" class="animated-button-2">帮助</button>
     </div>
     <footer style="margin-top: auto;">
         <div style="background-color:rgb(6, 48, 50);">
