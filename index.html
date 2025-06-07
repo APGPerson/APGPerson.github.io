@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<head>
+    <title>天津中考倒计时</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script>
+        const texts = [
+            "九年寒窗，在此一搏；冲刺中考，奋斗今朝。",
+            "九年磨砺剑，一朝试锋芒。",
+            "怀揣梦想，搏击风浪，策马雄关，青春永不言败。",
+            "志存高远，奋发向上；勤学苦练，敢拼敢闯。",
+            "讲究方法，保质保量；争分夺秒，适度紧张；自我调节，立马横枪！",
+            "天生我才，誓上高中；全力以赴，拼力而为。",
+            "胸有凌云志，爱拼一定赢，中考逐鹿场，谁可与争锋。",
+            "大拼六十天，定能攀花折桂；努力两个月，必会金榜题名。",
+            "今天多一份拼搏、明天多几份欢笑。",
+            "立志高远，脚踏实地；刻苦钻研，勤学苦思；稳定心态，不馁不弃；全力以赴，夺取胜利。"
+        ]
+        function replace(obj, from, data) {
+            obj = obj.replace(from, data);
+            return 0;
+        }
+        function formatTime(seconds) {
+            var hours = Math.floor(seconds / 3600);
+            var minutes = Math.floor((seconds % 3600) / 60);
+            var remainingSeconds = seconds % 60;
+            if (hours < 10) { hours = "0" + hours.toString() }
+            if (minutes < 10) { minutes = "0" + minutes.toString() }
+            if (remainingSeconds < 10) { remainingSeconds = "0" + remainingSeconds.toString() }
+
+            return `${hours}:${minutes}:${remainingSeconds}秒`;
+        }
+        function Runner(option, data) {
+            var exam = document.querySelector(".exam");
+            var nextexam = document.querySelector(".nextexam");
+            var thisexam = document.querySelector(".thisexam");
+            var nowtime = Math.floor(Date.now() / 1000);
+            exam.innerText = exam.innerText.replace("{name}", data["exam_name"]);
+
+            var lateststatue = "{statue}";
+            var latestct = "{countdown}";
+
+            var latestnxtct = "{countdown}";
+            var latestnxtname = "{name}";
+
+            var latestnowct = "{countdown}";
+            var latestnowname = "{name}";
+
+            var backup = ""
+            var need = true
+            setInterval(() => {
+                need = true
+                nowtime = Math.floor(Date.now() / 1000);
+                if (nowtime < data["exam_time"][0]) {
+                    statue = "开始";
+                    countdown = formatTime(data["exam_time"][0] - nowtime);
+                    red = 150 * 864000 / (data["exam_time"][0] - nowtime);
+                } else {
+                    statue = "结束";
+                    countdown = formatTime(data["exam_time"][0] - nowtime + data["exam_time"][1])
+                }
+                exam.innerText = exam.innerText.replace(lateststatue, statue);
+                console.log(countdown);
+                exam.innerText = exam.innerText.replace(latestct, countdown);
+                lateststatue = statue;
+                latestct = countdown;
+                //exam
+                all = data["exam_date"]
+                const entries = Object.entries(all);
+                if (nowtime < data["exam_time"][0]) {
+                    if (backup == "") {
+                        backup = thisexam.innerText;
+                        thisexam.innerText = "";
+                    }
+                    let [key, value] = entries[0];
+                    nextexam.innerText = nextexam.innerText.replace(latestnxtname, key)
+                    countdown = formatTime(value[0] - nowtime);
+                    nextexam.innerText = nextexam.innerText.replace(latestnxtct, countdown)
+                    latestnxtname = key;
+                    latestnxtct = countdown;
+                    need = false
+                } else if (nowtime > (data["exam_time"][0] + data["exam_time"][1])) {
+                    thisexam.innerText = ""
+                    nextexam.innerText = ""
+                    exam.innerText = "本次考试已结束"
+                    return 0;
+                }
+                if (need) {
+                    var big = ""
+                    for (let i = 0; i < entries.length; i++) {
+                        let [key, value] = entries[i];
+                        if (nowtime > value[0] && nowtime < (value[0] + value[1])) {
+                            if (backup != "") {
+                                thisexam.innerText = backup
+                                backup = ""
+                            }
+                            if (key[0] == "[" && option != true) {
+                                thisexam.innerText = ""
+                                nextexam.innerText = ""
+                                break;
+                            }
+                            if (nextexam.innerText != "" && (i + 1) < entries.length) {
+                                let [k, l] = entries[i + 1]
+                                if (k[0] == "[" && option != true) {
+                                    nextexam.innerText = ""
+                                } else {
+                                    nextexam.innerText = nextexam.innerText.replace(latestnxtname, k)
+                                    countdown = formatTime(l[0] - nowtime)
+                                    nextexam.innerText = nextexam.innerText.replace(latestnxtct, countdown)
+                                    latestnxtname = k;
+                                    latestnxtct = countdown;
+                                }
+                            } else {
+                                nextexam.innerText = ""
+                            }
+
+
+                            thisexam.innerText = thisexam.innerText.replace(latestnowname, key)
+                            countdown = formatTime(value[0] - nowtime + value[1])
+                            thisexam.innerText = thisexam.innerText.replace(latestnowct, countdown)
+                            latestnowname = key;
+                            latestnowct = countdown;
+                            break;
+                        } else if (nowtime > (value[0] + value[1])) {
+                            big = key
+                            if (backup == "") {
+                                backup = thisexam.innerText;
+                                thisexam.innerText = "";
+                            }
+                        } else if (nowtime < value[0]) {
+                            //nxt = key
+                            if (backup == "") {
+                                backup = thisexam.innerText;
+                                thisexam.innerText = "";
+                            }
+                            if (key[0] == "[" && option != true) {
+                                nextexam.innerText = ""
+                                break;
+                            } else {
+                                nextexam.innerText = nextexam.innerText.replace(latestnxtname, key)
+                                countdown = formatTime(value[0] - nowtime)
+                                nextexam.innerText = nextexam.innerText.replace(latestnxtct, countdown)
+                                latestnxtname = key;
+                                latestnxtct = countdown;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }, 1000);
+
+
+        }
+        function loadData(option) {
+            var xmlhttp;
+            if (window.XMLHttpRequest) {
+                // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    data = JSON.parse(this.responseText);
+                    console.log(data);
+                    Runner(option, data);
+                    Cookies.set("exam", JSON.stringify(data));
+                    return 0;
+                }
+            }
+            xmlhttp.open("GET", "data.json", true);
+            xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xmlhttp.send();
+        };
+        function RandArray(array) {
+            var rand = Math.random() * array.length | 0;
+            var rValue = array[rand];
+            return rValue;
+        }
+
+        window.onload = () => {
+            if (Cookies.get("config") === undefined) {
+                var conf = {}
+                Swal.fire({
+                    title: "欢迎使用中考倒计时网站",
+                    text: "我是初始化向导，请跟随我完成初始化",
+                    icon: "info",
+                    confirmButtonText: "下一步"
+                }).then(() => {
+                    Swal.fire({
+                        title: "会考",
+                        text: "请问您是否参加生物&地理会考?",
+                        icon: "question",
+                        showCancelButton: true,
+                        cancelButtonText: "参加",
+                        confirmButtonText: "不参加"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            conf["option"] = false;
+                        } else {
+                            conf["option"] = true;
+                        }
+                        console.log(conf);
+                        Cookies.set("config", JSON.stringify(conf))
+                        location.reload()
+                    })
+                })
+            }
+            var config = JSON.parse(Cookies.get("config"))
+            setInterval(() => {
+                var t = document.querySelector(".tex")
+                var b = document.querySelector(".bar")
+                progress = 0
+                b.style.width = progress.toString() + "%";
+                t.innerText = RandArray(texts)
+                id = setInterval(()=>{
+                    progress+=0.5
+                    b.style.width = progress.toString() + "%";
+                },50)
+                setTimeout(()=>{
+                    clearInterval(id)
+                },10000)
+            }, 10000)
+            if (Cookies.get("exam") === undefined) {
+                loadData(config["option"]);
+            } else {
+                Runner(config["option"], JSON.parse(Cookies.get("exam")))
+            }
+        }
+
+
+        function removeexam() {
+            Cookies.remove('exam');
+            location.reload();
+        }
+        function removeconfig() {
+            Cookies.remove('config');
+            location.reload();
+        }
+        function copyright() {
+            Swal.fire({
+                title: "Licence",
+                text: "The MIT License (MIT)\nCopyright © 2025 APG\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+                icon: "info"
+            })
+        }
+        function play() {
+            var aud = document.querySelector(".playobj");
+            if (aud.paused) {
+                aud.play()
+            } else {
+                aud.pause()
+            }
+        }
+    </script>
+    <script src="sweetalert2@11.js"></script>
+    <script src="js.cookie.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <style>
+        .ax {
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="d">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="exam text-center">本次考试{name}距离{statue} T-{countdown}</h1>
+                <h1 class="nextexam text-center">距离下一场考试{name}开始 T-{countdown}</h1>
+                <h1 class="thisexam text-center">当前考试{name}结束倒计时 T-{countdown}</h1>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">
+                <h1 class="text-center">祝同学们:</h1>
+            </div>
+            <div class="card-body">
+                <h1 class="text-center tex"></h1>
+                <div class="progress" style="height:10px;">
+                    <div class="progress-bar bar" style="width:0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navbar fixed-bottom justify-content-center" role="navigation">
+            <button onclick="removeexam()" class="ax btn btn-warning">重新载入数据</button>
+            <button onclick="removeconfig()" class="ax btn btn-warning">更改初始化设置</button>
+            <button onclick="play()" class="ax btn btn-info">播放/停止背景音乐</button>
+            <button onclick="copyright()" class="ax btn btn-info">版权信息</button>
+        </nav>
+    </div>
+    <audio src="bgm.mp3" loop class="playobj"></audio>
+</body>
