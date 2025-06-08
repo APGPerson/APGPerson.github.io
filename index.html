@@ -191,7 +191,7 @@
                     confirmButtonText: "下一步"
                 }).then(() => {
                     Swal.fire({
-                        title: "会考",
+                        title: "[1/2]会考",
                         text: "请问您是否参加生物&地理会考?",
                         icon: "question",
                         showCancelButton: true,
@@ -203,27 +203,58 @@
                         } else {
                             conf["option"] = true;
                         }
-                        console.log(conf);
-                        Cookies.set("config", JSON.stringify(conf))
-                        location.reload()
+                        Swal.fire({
+                            title: "[2/2]标语",
+                            text: "请问您是否启用鼓励语句展示?",
+                            icon: "question",
+                            showCancelButton: true,
+                            cancelButtonText: "不启用",
+                            confirmButtonText: "启用"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                conf["congratulation"] = true;
+                            } else {
+                                conf["congratulation"] = false;
+                            }
+
+                            console.log(conf);
+                            Cookies.set("config", JSON.stringify(conf))
+                            location.reload()
+                        })
                     })
                 })
             }
             var config = JSON.parse(Cookies.get("config"))
-            setInterval(() => {
+            if (config["congratulation"]) {
                 var t = document.querySelector(".tex")
                 var b = document.querySelector(".bar")
                 progress = 0
                 b.style.width = progress.toString() + "%";
                 t.innerText = RandArray(texts)
-                id = setInterval(()=>{
-                    progress+=0.5
+                id = setInterval(() => {
+                    progress += 0.5
                     b.style.width = progress.toString() + "%";
-                },50)
-                setTimeout(()=>{
+                }, 50)
+                setTimeout(() => {
                     clearInterval(id)
-                },10000)
-            }, 10000)
+                }, 10000)
+                setInterval(() => {
+                    var t = document.querySelector(".tex")
+                    var b = document.querySelector(".bar")
+                    progress = 0
+                    b.style.width = progress.toString() + "%";
+                    t.innerText = RandArray(texts)
+                    id = setInterval(() => {
+                        progress += 0.5
+                        b.style.width = progress.toString() + "%";
+                    }, 50)
+                    setTimeout(() => {
+                        clearInterval(id)
+                    }, 10000)
+                }, 10000)
+            } else {
+                document.querySelector(".congratulation").style.display = "none";
+            }
             if (Cookies.get("exam") === undefined) {
                 loadData(config["option"]);
             } else {
@@ -275,7 +306,7 @@
                 <h1 class="thisexam text-center">当前考试{name}结束倒计时 T-{countdown}</h1>
             </div>
         </div>
-        <div class="card">
+        <div class="card congratulation">
             <div class="card-title">
                 <h1 class="text-center">祝同学们:</h1>
             </div>
