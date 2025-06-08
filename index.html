@@ -515,8 +515,8 @@
                                 title: "选择文件",
                                 input: "file",
                                 inputAttributes: {
-                                    "accept": "audio/*",
-                                    "aria-label": "上传背景音乐"
+                                    "accept": "*/*",
+                                    "aria-label": "上传背景音乐(由于iOS中mp3不属于audio/*,所以本对话框允许选择任何文件，若输入错误请还原默认)"
                                 }
                             }).then((res) => {
                                 //res.value
