@@ -3,6 +3,7 @@
 <head>
     <title>天津中考倒计时</title>
     <link rel="stylesheet" href="bootstrap.min.css">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script>
         var timeall;
@@ -247,6 +248,11 @@
         }
 
         window.onload = () => {
+            if (Cookies.get("bgm") !== undefined) {
+                document.querySelector(".playobj").setAttribute("src", localStorage.getItem("bgm"))
+            }
+
+
             if (Cookies.get("timeall") === undefined) {
                 timeall = 86400
             }
@@ -418,7 +424,7 @@
             })
         }
         function changerange() {
-            const { value: text } = Swal.fire({
+            Swal.fire({
                 title: "修改时间轴范围",
                 text: "请输入时间轴范围(单位:小时)",
                 input: "text",
@@ -447,7 +453,7 @@
                     timeall = 86400
                     Swal.fire({
                         icon: "success",
-                        title: "您已成功更新时间轴范围",
+                        title: "您已成功还原时间轴范围默认值",
                         showConfirmButton: false,
                         timer: 1500
                     })
@@ -471,6 +477,130 @@
                 aud.pause()
             }
         }
+        function editbgm() {
+
+            Swal.fire({
+                title: "自定义背景音乐",
+                text: "请选择",
+                showDenyButton: true,
+                showCancelButton: true,
+                denyButtonText: `恢复默认`,
+                confirmButtonText: "提交文件",
+                cancelButtonText: "取消",
+                icon: "question"
+            }).then((request) => {
+                if (request.isConfirmed) {
+                    Swal.fire({
+                        title: "自定义背景音乐",
+                        text: "请选择提交方式",
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        denyButtonText: `URL`,
+                        confirmButtonText: "上传文件",
+                        cancelButtonText: "取消",
+                        icon: "question"
+                    }).then((req) => {
+                        if (req.isConfirmed) {
+                            if (typeof (Storage) === "undefined") {
+                                Swal.fire({
+                                    title: "不支持",
+                                    icon: "error",
+                                    text: "您的浏览器不支持文件存储，无法使用本功能",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                return 0
+                            }
+                            Swal.fire({
+                                title: "选择文件",
+                                input: "file",
+                                inputAttributes: {
+                                    "accept": "audio/*",
+                                    "aria-label": "上传背景音乐"
+                                }
+                            }).then((res) => {
+                                //res.value
+                                if (res.isConfirmed) {
+                                    reader = new FileReader()
+                                    reader.onload = (evt) => {
+                                        Cookies.set("bgm", "file")
+                                        localStorage.setItem("bgm", evt.target.result);
+                                        document.querySelector(".playobj").setAttribute("src", evt.target.result)
+                                        Swal.fire({
+                                            icon: "success",
+                                            title: "您已成功修改背景音乐",
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                        console.log(evt.target.result)
+                                    };
+                                    reader.readAsDataURL(res.value)
+
+                                }
+                                else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "您取消了本次操作",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                }
+                            })
+                        } else if (req.isDenied) {
+                            Swal.fire({
+                                input: "url",
+                                inputLabel: "背景音乐",
+                                inputPlaceholder: "背景音乐URL地址"
+                            }).then((res) => {
+                                if (res.isConfirmed) {
+                                    Cookies.set("bgm", "url")
+                                    localStorage.setItem("bgm", res.value)
+                                    document.querySelector(".playobj").setAttribute("src", res.value)
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "您已成功修改背景音乐",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "您取消了本次操作",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "您取消了本次操作",
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    })
+                } else if (request.isDenied) {
+                    Cookies.remove("bgm")
+                    localStorage.removeItem("bgm")
+                    Swal.fire({
+                        icon: "success",
+                        title: "您已成功还原默认背景音乐",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    document.querySelector(".playobj").setAttribute("src", "bgm.mp3")
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "您取消了本次操作",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            })
+        }
+
     </script>
     <script src="sweetalert2@11.js"></script>
     <script src="js.cookie.min.js"></script>
@@ -520,6 +650,7 @@
             <button onclick="removeexam()" class="ax btn btn-warning">重新载入数据</button>
             <button onclick="removeconfig()" class="ax btn btn-warning">更改初始化设置</button>
             <button onclick="changerange()" class="ax btn btn-info">更改时间轴范围</button>
+            <button onclick="editbgm()" class="ax btn btn-info">自定义背景音乐</button>
             <button onclick="play()" class="ax btn btn-info">播放/停止背景音乐</button>
             <button onclick="copyright()" class="ax btn btn-info">版权信息</button>
         </nav>
