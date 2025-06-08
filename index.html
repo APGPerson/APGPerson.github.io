@@ -32,7 +32,7 @@
             }
             document.querySelector(".progress").appendChild(ele)
         }
-        function Add(exam, timeall,nowtime) {
+        function Add(exam, timeall, nowtime) {
             //convert like "道法&历史": [
             //                  1750640400,
             //                  7200
@@ -76,6 +76,9 @@
             var exam = document.querySelector(".exam");
             var nextexam = document.querySelector(".nextexam");
             var thisexam = document.querySelector(".thisexam");
+            exam.innerHTML = "本次考试{name}距离{statue}<br>T-{countdown}"
+            nextexam.innerHTML = "距离下一场考试{name}开始<br>T-{countdown}"
+            thisexam.innerHTML = "当前考试{name}结束倒计时<br>T-{countdown}"
             var nowtime = Math.floor(Date.now() / 1000);
             exam.innerText = exam.innerText.replace("{name}", data["exam_name"]);
 
@@ -103,7 +106,7 @@
                     if (key[0] == " " && option == false) {
                         continue
                     }
-                    percent = Add(value, timeall,nowtime)
+                    percent = Add(value, timeall, nowtime)
                     newprogress(false, percent[0] - latest, "")
                     console.log(percent[0] - latest)
                     newprogress(true, percent[1], key.trim())
@@ -128,7 +131,7 @@
                 lateststatue = statue;
                 latestct = countdown;
                 //exam
-                
+
                 if (nowtime < data["exam_time"][0]) {
                     if (backup == "") {
                         backup = thisexam.innerText;
@@ -244,8 +247,14 @@
         }
 
         window.onload = () => {
-            if (Cookies.get("timeall") === undefined) { timeall = 86400 }
-            else { timeall = Cookies.get("timeall") }
+            if (Cookies.get("timeall") === undefined) {
+                timeall = 86400
+            }
+            else {
+                timeall = Cookies.get("timeall")
+            }
+            var timelinenum = document.querySelector(".timelinenum")
+            timelinenum.innerText = timelinenum.innerText.replace("{time}", timeall / 3600)
             if (Cookies.get("config") === undefined) {
                 var conf = {}
                 Swal.fire({
@@ -422,7 +431,9 @@
             }).then((result) => {
                 console.log(result.value)
                 if (result.isConfirmed && result.value != "") {
-                    timeall = result.value*3600
+                    var timelinenum = document.querySelector(".timelinenum")
+                    timelinenum.innerText = timelinenum.innerText.replace(timeall / 3600, result.value)
+                    timeall = result.value * 3600
                     Swal.fire({
                         icon: "success",
                         title: "您已成功更新时间轴范围",
@@ -431,6 +442,8 @@
                     })
                     Cookies.set("timeall", timeall)
                 } else if (result.isDenied) {
+                    var timelinenum = document.querySelector(".timelinenum")
+                    timelinenum.innerText = timelinenum.innerText.replace(timeall / 3600, 24)
                     timeall = 86400
                     Swal.fire({
                         icon: "success",
@@ -439,7 +452,7 @@
                         timer: 1500
                     })
                     Cookies.remove("timeall")
-                    
+
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -466,7 +479,8 @@
         .ax {
             margin: 10px;
         }
-        .m{
+
+        .m {
             margin-top: 20px;
             margin-bottom: 20px;
         }
@@ -477,12 +491,13 @@
     <div class="d">
         <div class="card m">
             <div class="card-body container">
-                <h1 class="exam text-center">本次考试{name}距离{statue}<br>T-{countdown}</h1>
-                <h1 class="nextexam text-center">距离下一场考试{name}开始<br>T-{countdown}</h1>
-                <h1 class="thisexam text-center">当前考试{name}结束倒计时<br>T-{countdown}</h1>
+                <h1 class="exam text-center">加载数据中...</h1>
+                <h1 class="nextexam text-center">请静待片刻</h1>
+                <h1 class="thisexam text-center">现在无法添加iOS WebClip<br>请等待加载完毕后尝试</h1>
             </div>
         </div>
         <div class="container m" style="max-width: 100%;">
+            <h1 class="timelinenum text-center">时间轴: {time}h 内</h1>
             <div class="progress" style="height:50px;">
                 <div class="progress-bar bg-success del" style="width:100%">
                     无考试
