@@ -3,7 +3,9 @@
 <head>
     <title>天津中考倒计时</title>
     <link rel="stylesheet" href="bootstrap.min.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <script>
+        var timeall;
         const texts = [
             "九年寒窗，在此一搏；冲刺中考，奋斗今朝。",
             "九年磨砺剑，一朝试锋芒。",
@@ -16,6 +18,46 @@
             "今天多一份拼搏、明天多几份欢笑。",
             "立志高远，脚踏实地；刻苦钻研，勤学苦思；稳定心态，不馁不弃；全力以赴，夺取胜利。"
         ]
+        function newprogress(isExam, percent, describe) {
+            if (isExam !== true) {
+                describe = "无考试"
+            }
+            ele = document.createElement("div")
+            ele.innerText = describe;
+            ele.style.width = percent.toString() + "%"
+            if (isExam) {
+                ele.setAttribute('class', 'progress-bar bg-danger del');
+            } else {
+                ele.setAttribute('class', 'progress-bar bg-success del');
+            }
+            document.querySelector(".progress").appendChild(ele)
+        }
+        function Add(exam, timeall,nowtime) {
+            //convert like "道法&历史": [
+            //                  1750640400,
+            //                  7200
+            //              ],
+            //to "道法&历史": [startpercent,percent]
+            var final = [0, 0]
+            if (exam[0] >= nowtime) {
+                final[0] = 100 * (exam[0] - nowtime) / timeall
+
+                if (final[0] >= 100) {
+                    final[0] = 100
+                    final[1] = 0
+                } else {
+                    final[1] = 100 * exam[1] / timeall;
+                }
+                if (final[0] + final[1] >= 100) {
+                    final[1] = 100 - final[0];
+                }
+            } else {
+                final[1] = 100 * (exam[1] + exam[0] - nowtime) / timeall
+                if (final[1] > 100) final[1] = 100
+                final[0] = 0
+            }
+            return final
+        }
         function replace(obj, from, data) {
             obj = obj.replace(from, data);
             return 0;
@@ -28,7 +70,7 @@
             if (minutes < 10) { minutes = "0" + minutes.toString() }
             if (remainingSeconds < 10) { remainingSeconds = "0" + remainingSeconds.toString() }
 
-            return `${hours}:${minutes}:${remainingSeconds}秒`;
+            return `${hours}:${minutes}:${remainingSeconds}`;
         }
         function Runner(option, data) {
             var exam = document.querySelector(".exam");
@@ -49,8 +91,29 @@
             var backup = ""
             var need = true
             setInterval(() => {
-                need = true
                 nowtime = Math.floor(Date.now() / 1000);
+                all = data["exam_date"]
+                for (let element of document.querySelectorAll(".del")) {
+                    element.remove()
+                }
+                latest = 0
+                const entries = Object.entries(all);
+                for (let i = 0; i < entries.length; i++) {
+                    let [key, value] = entries[i];
+                    if (key[0] == " " && option == false) {
+                        continue
+                    }
+                    percent = Add(value, timeall,nowtime)
+                    newprogress(false, percent[0] - latest, "")
+                    console.log(percent[0] - latest)
+                    newprogress(true, percent[1], key.trim())
+                    latest = percent[0] + percent[1]
+                }
+                newprogress(false, 100 - latest, "")
+
+
+                //
+                need = true
                 if (nowtime < data["exam_time"][0]) {
                     statue = "开始";
                     countdown = formatTime(data["exam_time"][0] - nowtime);
@@ -65,18 +128,17 @@
                 lateststatue = statue;
                 latestct = countdown;
                 //exam
-                all = data["exam_date"]
-                const entries = Object.entries(all);
+                
                 if (nowtime < data["exam_time"][0]) {
                     if (backup == "") {
                         backup = thisexam.innerText;
                         thisexam.innerText = "";
                     }
                     let [key, value] = entries[0];
-                    nextexam.innerText = nextexam.innerText.replace(latestnxtname, key)
+                    nextexam.innerText = nextexam.innerText.replace(latestnxtname, key.trim())
                     countdown = formatTime(value[0] - nowtime);
                     nextexam.innerText = nextexam.innerText.replace(latestnxtct, countdown)
-                    latestnxtname = key;
+                    latestnxtname = key.trim();
                     latestnxtct = countdown;
                     need = false
                 } else if (nowtime > (data["exam_time"][0] + data["exam_time"][1])) {
@@ -94,20 +156,20 @@
                                 thisexam.innerText = backup
                                 backup = ""
                             }
-                            if (key[0] == "[" && option != true) {
+                            if (key[0] == " " && option != true) {
                                 thisexam.innerText = ""
                                 nextexam.innerText = ""
                                 break;
                             }
                             if (nextexam.innerText != "" && (i + 1) < entries.length) {
                                 let [k, l] = entries[i + 1]
-                                if (k[0] == "[" && option != true) {
+                                if (k[0] == " " && option != true) {
                                     nextexam.innerText = ""
                                 } else {
-                                    nextexam.innerText = nextexam.innerText.replace(latestnxtname, k)
+                                    nextexam.innerText = nextexam.innerText.replace(latestnxtname, k.trim())
                                     countdown = formatTime(l[0] - nowtime)
                                     nextexam.innerText = nextexam.innerText.replace(latestnxtct, countdown)
-                                    latestnxtname = k;
+                                    latestnxtname = k.trim();
                                     latestnxtct = countdown;
                                 }
                             } else {
@@ -115,10 +177,10 @@
                             }
 
 
-                            thisexam.innerText = thisexam.innerText.replace(latestnowname, key)
+                            thisexam.innerText = thisexam.innerText.replace(latestnowname, key.trim())
                             countdown = formatTime(value[0] - nowtime + value[1])
                             thisexam.innerText = thisexam.innerText.replace(latestnowct, countdown)
-                            latestnowname = key;
+                            latestnowname = key.trim();
                             latestnowct = countdown;
                             break;
                         } else if (nowtime > (value[0] + value[1])) {
@@ -133,14 +195,14 @@
                                 backup = thisexam.innerText;
                                 thisexam.innerText = "";
                             }
-                            if (key[0] == "[" && option != true) {
+                            if (key[0] == " " && option != true) {
                                 nextexam.innerText = ""
                                 break;
                             } else {
-                                nextexam.innerText = nextexam.innerText.replace(latestnxtname, key)
+                                nextexam.innerText = nextexam.innerText.replace(latestnxtname, key.trim())
                                 countdown = formatTime(value[0] - nowtime)
                                 nextexam.innerText = nextexam.innerText.replace(latestnxtct, countdown)
-                                latestnxtname = key;
+                                latestnxtname = key.trim();
                                 latestnxtct = countdown;
                                 break;
                             }
@@ -182,6 +244,8 @@
         }
 
         window.onload = () => {
+            if (Cookies.get("timeall") === undefined) { timeall = 86400 }
+            else { timeall = Cookies.get("timeall") }
             if (Cookies.get("config") === undefined) {
                 var conf = {}
                 Swal.fire({
@@ -219,7 +283,15 @@
 
                             console.log(conf);
                             Cookies.set("config", JSON.stringify(conf))
-                            location.reload()
+                            Swal.fire({
+                                icon: "success",
+                                title: "您的修改已保存",
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            setTimeout(() => {
+                                location.reload()
+                            }, 1500)
                         })
                     })
                 })
@@ -255,6 +327,11 @@
             } else {
                 document.querySelector(".congratulation").style.display = "none";
             }
+
+
+
+
+            //Get/Set exam data
             if (Cookies.get("exam") === undefined) {
                 loadData(config["option"]);
             } else {
@@ -264,18 +341,113 @@
 
 
         function removeexam() {
-            Cookies.remove('exam');
-            location.reload();
+            Swal.fire({
+                title: "请确认",
+                icon: "warning",
+                confirmButtonText: "确认",
+                cancelButtonText: "取消",
+                text: "本地保留的考试数据将被删除，删除后您需要联网下载数据以继续使用",
+                showCancelButton: true,
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "您的本地数据将被删除",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    setTimeout(() => {
+                        Cookies.remove('exam');
+                        location.reload();
+                    }, 1500)
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "您取消了删除本地数据",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            })
+
         }
         function removeconfig() {
-            Cookies.remove('config');
-            location.reload();
+            Swal.fire({
+                title: "请确认",
+                icon: "warning",
+                confirmButtonText: "确认",
+                cancelButtonText: "取消",
+                text: "本地保留的初始化数据将被删除，删除后您需要重新填写相关信息以继续使用",
+                showCancelButton: true,
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "您的本地数据将被删除",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    setTimeout(() => {
+                        Cookies.remove('config');
+                        location.reload();
+                    }, 1500)
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "您取消了删除本地数据",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            })
         }
         function copyright() {
             Swal.fire({
                 title: "Licence",
                 text: "The MIT License (MIT)\nCopyright © 2025 APG\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
                 icon: "info"
+            })
+        }
+        function changerange() {
+            const { value: text } = Swal.fire({
+                title: "修改时间轴范围",
+                text: "请输入时间轴范围(单位:小时)",
+                input: "text",
+                showDenyButton: true,
+                showCancelButton: true,
+                denyButtonText: `恢复默认`,
+                confirmButtonText: "保存",
+                cancelButtonText: "取消",
+                icon: "question"
+            }).then((result) => {
+                console.log(result.value)
+                if (result.isConfirmed && result.value != "") {
+                    timeall = result.value*3600
+                    Swal.fire({
+                        icon: "success",
+                        title: "您已成功更新时间轴范围",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    Cookies.set("timeall", timeall)
+                } else if (result.isDenied) {
+                    timeall = 86400
+                    Swal.fire({
+                        icon: "success",
+                        title: "您已成功更新时间轴范围",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    Cookies.remove("timeall")
+                    
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "您取消了本次操作",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
             })
         }
         function play() {
@@ -294,19 +466,30 @@
         .ax {
             margin: 10px;
         }
+        .m{
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
     <div class="d">
-        <div class="card">
-            <div class="card-body">
-                <h1 class="exam text-center">本次考试{name}距离{statue} T-{countdown}</h1>
-                <h1 class="nextexam text-center">距离下一场考试{name}开始 T-{countdown}</h1>
-                <h1 class="thisexam text-center">当前考试{name}结束倒计时 T-{countdown}</h1>
+        <div class="card m">
+            <div class="card-body container">
+                <h1 class="exam text-center">本次考试{name}距离{statue}<br>T-{countdown}</h1>
+                <h1 class="nextexam text-center">距离下一场考试{name}开始<br>T-{countdown}</h1>
+                <h1 class="thisexam text-center">当前考试{name}结束倒计时<br>T-{countdown}</h1>
             </div>
         </div>
-        <div class="card congratulation">
+        <div class="container m" style="max-width: 100%;">
+            <div class="progress" style="height:50px;">
+                <div class="progress-bar bg-success del" style="width:100%">
+                    无考试
+                </div>
+            </div>
+        </div>
+        <div class="card congratulation container m">
             <div class="card-title">
                 <h1 class="text-center">祝同学们:</h1>
             </div>
@@ -321,6 +504,7 @@
         <nav class="navbar fixed-bottom justify-content-center" role="navigation">
             <button onclick="removeexam()" class="ax btn btn-warning">重新载入数据</button>
             <button onclick="removeconfig()" class="ax btn btn-warning">更改初始化设置</button>
+            <button onclick="changerange()" class="ax btn btn-info">更改时间轴范围</button>
             <button onclick="play()" class="ax btn btn-info">播放/停止背景音乐</button>
             <button onclick="copyright()" class="ax btn btn-info">版权信息</button>
         </nav>
