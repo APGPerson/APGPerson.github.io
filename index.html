@@ -233,7 +233,7 @@
                     data = JSON.parse(this.responseText);
                     console.log(data);
                     Runner(option, data);
-                    Cookies.set("exam", JSON.stringify(data));
+                    localStorage.setItem("exam", JSON.stringify(data));
                     return 0;
                 }
             }
@@ -248,20 +248,20 @@
         }
 
         window.onload = () => {
-            if (Cookies.get("bgm") !== undefined) {
+            if (localStorage.getItem("bgm") !== null) {
                 document.querySelector(".playobj").setAttribute("src", localStorage.getItem("bgm"))
             }
 
 
-            if (Cookies.get("timeall") === undefined) {
+            if (localStorage.getItem("timeall") == undefined) {
                 timeall = 86400
             }
             else {
-                timeall = Cookies.get("timeall")
+                timeall = localStorage.getItem("timeall")
             }
             var timelinenum = document.querySelector(".timelinenum")
             timelinenum.innerText = timelinenum.innerText.replace("{time}", timeall / 3600)
-            if (Cookies.get("config") === undefined) {
+            if (localStorage.getItem("config") == undefined) {
                 var conf = {}
                 Swal.fire({
                     title: "欢迎使用中考倒计时网站",
@@ -297,7 +297,7 @@
                             }
 
                             console.log(conf);
-                            Cookies.set("config", JSON.stringify(conf))
+                            localStorage.setItem("config", JSON.stringify(conf))
                             Swal.fire({
                                 icon: "success",
                                 title: "您的修改已保存",
@@ -311,7 +311,7 @@
                     })
                 })
             }
-            var config = JSON.parse(Cookies.get("config"))
+            var config = JSON.parse(localStorage.getItem("config"))
             if (config["congratulation"]) {
                 var t = document.querySelector(".tex")
                 var b = document.querySelector(".bar")
@@ -347,10 +347,10 @@
 
 
             //Get/Set exam data
-            if (Cookies.get("exam") === undefined) {
+            if (localStorage.getItem("exam") == undefined) {
                 loadData(config["option"]);
             } else {
-                Runner(config["option"], JSON.parse(Cookies.get("exam")))
+                Runner(config["option"], JSON.parse(localStorage.getItem("exam")))
             }
         }
 
@@ -372,7 +372,7 @@
                         timer: 1500
                     })
                     setTimeout(() => {
-                        Cookies.remove('exam');
+                        localStorage.removeItem('exam');
                         location.reload();
                     }, 1500)
                 } else {
@@ -403,7 +403,7 @@
                         timer: 1500
                     })
                     setTimeout(() => {
-                        Cookies.remove('config');
+                        localStorage.removeItem('config');
                         location.reload();
                     }, 1500)
                 } else {
@@ -446,7 +446,7 @@
                         showConfirmButton: false,
                         timer: 1500
                     })
-                    Cookies.set("timeall", timeall)
+                    localStorage.setItem("timeall", timeall)
                 } else if (result.isDenied) {
                     var timelinenum = document.querySelector(".timelinenum")
                     timelinenum.innerText = timelinenum.innerText.replace(timeall / 3600, 24)
@@ -457,7 +457,7 @@
                         showConfirmButton: false,
                         timer: 1500
                     })
-                    Cookies.remove("timeall")
+                    localStorage.removeItem("timeall")
 
                 } else {
                     Swal.fire({
@@ -523,7 +523,6 @@
                                 if (res.isConfirmed) {
                                     reader = new FileReader()
                                     reader.onload = (evt) => {
-                                        Cookies.set("bgm", "file")
                                         localStorage.setItem("bgm", evt.target.result);
                                         document.querySelector(".playobj").setAttribute("src", evt.target.result)
                                         Swal.fire({
@@ -553,7 +552,6 @@
                                 inputPlaceholder: "背景音乐URL地址"
                             }).then((res) => {
                                 if (res.isConfirmed) {
-                                    Cookies.set("bgm", "url")
                                     localStorage.setItem("bgm", res.value)
                                     document.querySelector(".playobj").setAttribute("src", res.value)
                                     Swal.fire({
@@ -581,7 +579,6 @@
                         }
                     })
                 } else if (request.isDenied) {
-                    Cookies.remove("bgm")
                     localStorage.removeItem("bgm")
                     Swal.fire({
                         icon: "success",
@@ -600,10 +597,31 @@
                 }
             })
         }
+        function dev() {
+            Swal.fire({
+                title: "Dev Menu",
+                text: "选择开发者设置",
+                showDenyButton: true,
+                showCancelButton: true,
+                showConfirmButton: false,
+                denyButtonText: `清除localStorage`,
+                cancelButtonText: "取消",
+                icon: "warning"
+            }).then((result) => {
+                if(result.isDenied){
+                    localStorage.clear();
+                    Swal.fire({
+                        icon: "success",
+                        title: "您已成功清除localStorage",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            })
+        }
 
     </script>
     <script src="sweetalert2@11.js"></script>
-    <script src="js.cookie.min.js"></script>
     <script src="bootstrap.min.js"></script>
     <style>
         .ax {
@@ -653,6 +671,7 @@
             <button onclick="editbgm()" class="ax btn btn-info">自定义背景音乐</button>
             <button onclick="play()" class="ax btn btn-info">播放/停止背景音乐</button>
             <button onclick="copyright()" class="ax btn btn-info">版权信息</button>
+            <button onclick="dev()" class="ax btn btn-danger">开发者设置</button>
         </nav>
     </div>
     <audio src="bgm.mp3" loop class="playobj"></audio>
